@@ -5,13 +5,14 @@ import { useSessionStore } from "@/store/session-store";
 import type { RunResult } from "@/types";
 
 export function useCodeRunner() {
-  const { currentQuiz, editorCode, setTestResults, setIsRunning } =
+  const { currentQuiz, editorCode, setTestResults, setEvaluation, setIsRunning } =
     useSessionStore();
 
   const runTests = useCallback(async () => {
     if (!currentQuiz) return null;
 
     setIsRunning(true);
+    setEvaluation(null);
 
     try {
       const res = await fetch("/api/run", {
@@ -21,6 +22,7 @@ export function useCodeRunner() {
           code: editorCode,
           language: "javascript",
           testCases: currentQuiz.testCases,
+          quiz: currentQuiz,
         }),
       });
 
@@ -28,11 +30,12 @@ export function useCodeRunner() {
 
       const result: RunResult = await res.json();
       setTestResults(result.results);
+      setEvaluation(result.evaluation ?? null);
       return result;
     } finally {
       setIsRunning(false);
     }
-  }, [currentQuiz, editorCode, setTestResults, setIsRunning]);
+  }, [currentQuiz, editorCode, setTestResults, setEvaluation, setIsRunning]);
 
   return { runTests };
 }

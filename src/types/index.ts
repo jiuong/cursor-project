@@ -77,6 +77,17 @@ export interface RunResult {
   passed: boolean;
   results: TestResult[];
   runtimeMs?: number;
+  evaluation?: EvaluationResult;
+}
+
+export interface EvaluationResult {
+  passed: boolean;
+  score: number;
+  feedback: string;
+  strengths: string[];
+  improvements: string[];
+  correctnessNotes: string;
+  testResults: TestResult[];
 }
 
 export interface SearchParams {
@@ -97,4 +108,5 @@ export interface RunCodeParams {
   code: string;
   language: string;
   testCases: TestCase[];
+  quiz?: Quiz;
 }

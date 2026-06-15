@@ -13,6 +13,7 @@ export function useQuizActions() {
     addSeenQuizId,
     setEditorCode,
     setTestResults,
+    setEvaluation,
     setIsGenerating,
   } = useSessionStore();
 
@@ -20,6 +21,7 @@ export function useQuizActions() {
     async (params?: Partial<GenerateQuizParams>) => {
       setIsGenerating(true);
       setTestResults([]);
+      setEvaluation(null);
 
       try {
         const res = await fetch("/api/quiz/generate", {
@@ -52,6 +54,7 @@ export function useQuizActions() {
       addSeenQuizId,
       setEditorCode,
       setTestResults,
+      setEvaluation,
       setIsGenerating,
     ],
   );

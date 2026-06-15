@@ -56,8 +56,18 @@ export const generateQuizParamsSchema = z.object({
   excludeIds: z.array(z.string()).optional(),
 });
 
+export const evaluationResultSchema = z.object({
+  passed: z.boolean(),
+  score: z.number().min(0).max(100),
+  feedback: z.string(),
+  strengths: z.array(z.string()),
+  improvements: z.array(z.string()),
+  correctnessNotes: z.string(),
+});
+
 export const runCodeParamsSchema = z.object({
   code: z.string(),
   language: z.string(),
   testCases: z.array(testCaseSchema),
+  quiz: quizSchema.optional(),
 });

@@ -1,18 +1,16 @@
+import { evaluateAnswerWithLlm } from "@/lib/llm";
 import type { RunCodeParams, RunResult, TestResult } from "@/types";
 
-/**
- * Sandboxed JavaScript code runner.
- * Phase 4 will move execution to a Web Worker for isolation.
- */
-export async function runCode(params: RunCodeParams): Promise<RunResult> {
-  const { code, testCases } = params;
-  const start = performance.now();
+function runTestCases(code: string, testCases: RunCodeParams["testCases"]): TestResult[] {
   const results: TestResult[] = [];
 
   for (let i = 0; i < testCases.length; i++) {
     const tc = testCases[i];
     try {
-      const fn = new Function(`${code}; return typeof twoSum === 'function' ? twoSum : (typeof solution === 'function' ? solution : null);`)();
+      const fn = new Function(
+        `${code}; return typeof twoSum === 'function' ? twoSum : (typeof solution === 'function' ? solution : null);`,
+      )();
+
       if (typeof fn !== "function") {
         results.push({
           index: i,
@@ -50,9 +48,29 @@ export async function runCode(params: RunCodeParams): Promise<RunResult> {
     }
   }
 
-  return {
-    passed: results.every((r) => r.passed),
+  return results;
+}
+
+export async function runCode(params: RunCodeParams): Promise<RunResult> {
+  const start = performance.now();
+  const results = runTestCases(params.code, params.testCases);
+  const allTestsPassed = results.every((r) => r.passed);
+
+  const base: RunResult = {
+    passed: allTestsPassed,
     results,
     runtimeMs: Math.round(performance.now() - start),
+  };
+
+  if (!params.quiz) {
+    return base;
+  }
+
+  const evaluation = await evaluateAnswerWithLlm(params.quiz, params.code, results);
+
+  return {
+    ...base,
+    passed: evaluation.passed,
+    evaluation,
   };
 }

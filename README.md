@@ -32,6 +32,8 @@ src/
 ## Getting Started
 
 ```bash
+cp .env.example .env
+# Add your DeepSeek API key to .env
 npm install
 npm run dev
 ```
